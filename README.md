@@ -1,7 +1,12 @@
 # Yandex Backend Test
 REST API с использованием Flask, SQLAlchemy и Marshmallow
 
-## Список зависимости
+## Зависимости
+
+Для работы приложения необходима версия языка Python 3.6 и выше
+
+Зависимости для проекта описаны в файлах Pipfile и Pipfile.lock
+
 ```bash
 Click==7.0
 Flask==1.1.1
@@ -19,6 +24,7 @@ six==1.12.0
 SQLAlchemy==1.3.7
 Werkzeug==0.15.5
 ```
+
 ## Утановка
 Установка и развертывание
 
