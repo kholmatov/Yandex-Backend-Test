@@ -1,4 +1,4 @@
-import datetime, json, re, numpy as np, simplejson
+import datetime, json, re, numpy as np, simplejson, time
 from collections import defaultdict
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.mutable import Mutable
@@ -88,6 +88,13 @@ def get_age(b_day):
     utc_n = datetime.datetime.utcnow()
     return utc_n.year - b_day.year - ((utc_n.month, utc_n.day) < (b_day.month, b_day.day))
 
+# Timeout Checker
+def time_out(counter, limit=10000, timeout=10):
+    counter += 1
+    if counter > limit:
+        time.sleep(timeout)
+        counter = 0
+    return counter
 
 # Class Mutable
 class MutableList(Mutable, list):
@@ -152,7 +159,7 @@ def add_imports():
         new_import = Import()
         db.session.add(new_import)
         relatives_dict = {}
-        cit_id = []
+        cit_id, counter = [], 0
         for rs in request.json['citizens']:
             rs['apartment'] = checkAparment(rs)
             if (len(rs) == 9 and (rs['citizen_id'] > 0 and type(rs['citizen_id']) == int) and noEmpty(rs['town'])
@@ -171,6 +178,7 @@ def add_imports():
                                        name=rs['name'], birth_date=checkDate(rs['birth_date']), gender=rs['gender'],
                                        relatives=rs['relatives']))
                 cit_id.append(rs['citizen_id'])
+                counter = time_out(counter)
             else:
                 return {}, 400
 
@@ -297,12 +305,14 @@ def get_citizen(import_id):
     try:
         all_citizens = Citizen.query.filter_by(import_id=import_id).all()
         if all_citizens:
-            return {"data": [
-                dict(citizen_id=row.citizen_id, town=row.town, street=row.street, building=row.building,
+            counter = 0
+            result = []
+            for row in all_citizens:
+                result.append(dict(citizen_id=row.citizen_id, town=row.town, street=row.street, building=row.building,
                      apartment=row.apartment, name=row.name, birth_date=row.birth_date.strftime('%d.%m.%Y'),
-                     gender=row.gender.strip(), relatives=[int(i) for i in row.relatives]) for row in
-                all_citizens]}, 200
-
+                     gender=row.gender.strip(), relatives=[int(i) for i in row.relatives]))
+                counter = time_out(counter)
+            return jsonify(data=result), 200
         return {}, 404
     except:
         return {}, 400
@@ -317,9 +327,11 @@ def get_birthdays(import_id):
         result = db.session.execute(sql)
 
         rs, cnt = {}, {}
+        counter = 0
         for row in result:
             rs[row["id"]] = [[int(i) for i in row["relatives"]], int(row["m_int"])]
             cnt[row["id"]] = [0 for i in range(12)]
+            counter = time_out(counter)
 
         if (len(rs)):
             del result
@@ -350,8 +362,11 @@ def get_percentile(import_id):
         sql = "SELECT town, birth_date FROM citizen WHERE import_id = %d;" % int(import_id)
         result = db.session.execute(sql)
         rs = defaultdict(list)
+        counter = 0
         for row in result:
             rs[row['town']].append(get_age(row['birth_date']))
+            counter = time_out(counter)
+
         if len(rs):
             percentile_town = []  # percentile by town
             for t, al in rs.items():
