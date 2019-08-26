@@ -1,7 +1,9 @@
 # Yandex Backend Test
 REST API с использованием Flask, SQLAlchemy и Marshmallow
 
-# Технологии
+## Утановка
+
+## Технологии
 ```bash
 Click==7.0
 Flask==1.1.1
