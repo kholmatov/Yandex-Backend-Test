@@ -2,6 +2,7 @@
 REST API с использованием Flask, SQLAlchemy и Marshmallow
 
 # Технологии
+```bash
 Click==7.0
 Flask==1.1.1
 flask-marshmallow==0.10.1
@@ -16,5 +17,5 @@ psycopg2==2.8.3
 six==1.12.0
 SQLAlchemy==1.3.7
 Werkzeug==0.15.5
-
+```
  
