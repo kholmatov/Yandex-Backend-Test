@@ -74,5 +74,4 @@ sudo systemctl start gunicorn.service
 
 ## Тесты
 
-```tests/tests.py``` - тесты на нагрузку<br/>
-```tests/data``` - папка с демо данными для генерации citizens 
+```tests/tests.py``` - тесты на нагрузку и проверка API запросов
