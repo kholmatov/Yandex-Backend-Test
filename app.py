@@ -8,7 +8,7 @@ from flask_marshmallow import Marshmallow
 
 # Init app
 app = Flask(__name__)
-# psql "postgresql://yandex:ap05092009s@localhost/api"
+
 # Database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://yandex:ap05092009s@localhost/api'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -224,7 +224,7 @@ def update_citizen(import_id, citizen_id):
                     checkS = False
 
             if checkS and checkKey(rj, 'name'):
-                if re.fullmatch(r'^[\D]+', rs['name'].strip()) and (0 < len(rj['name']) < 257):
+                if re.fullmatch(r'^[\D]+', rj['name'].strip()) and (0 < len(rj['name']) < 257):
                     citizen.name = rj['name']
                 else:
                     checkS = False
@@ -237,7 +237,7 @@ def update_citizen(import_id, citizen_id):
                     checkS = False
 
             if checkS and checkKey(rj, 'gender'):
-                if re.fullmatch(r'^female|male', rs['gender']):
+                if re.fullmatch(r'^female|male', rj['gender']):
                     citizen.gender = rj['gender']
                 else:
                     checkS = False
