@@ -1,2 +1,3 @@
-# Yandex-Backend-Test
+# Yandex Backend Test
+Тестовое задание в школу бекенд-разработку Яндекса.
  
