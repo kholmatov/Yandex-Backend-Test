@@ -135,7 +135,7 @@ class MyTestCase(unittest.TestCase):
                                   data=json.dumps({
                                       "town": "Москва",
                                       "street": "Иосифа Бродского",
-                                      "relatives": [2, 4],
+                                      "relatives": [],
                                       "birth_date": "30.09.1982"
                                   }),
                                   content_type='application/json')
