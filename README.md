@@ -22,10 +22,9 @@ Werkzeug==0.15.5
 ## Утановка
 Установка и развертывание
 
-Установка всех зависимостей
 ```
 sudo apt-get install python3-pip postgresql postgresql-contrib libpq-dev redis-server
-pip3 install flask flask_sqlalchemy psycopg2-binary gunicorn
+pip3 install flask flask_sqlalchemy psycopg2-binary gunicorn marshmallow marshmallow-sqlalchemy numpy
 git clone https://github.com/kholmatov/Yandex-Backend-Test.git
 ```
 Далее необходимо установить пароль для postgres и создать БД для тестов
