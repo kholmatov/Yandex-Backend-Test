@@ -43,10 +43,10 @@ def checkDate(date_string):
     try:
         match = re.fullmatch(r'\d\d\.\d\d\.\d{4}', date_string)
         if match:
-            bDate = datetime.datetime.strptime(date_string, '%d.%m.%Y').date()
-            nDate = datetime.datetime.utcnow().date()
+            bDate = datetime.datetime.strptime(date_string, '%d.%m.%Y')
+            nDate = datetime.datetime.utcnow()
             if bDate < nDate:
-                return bDate
+                return bDate.date()
             else:
                 return False
         else:
@@ -85,8 +85,8 @@ def checkKey(rs, key):
 
 # Calculate age
 def get_age(b_day):
-    today = datetime.datetime.utcnow().today()
-    return today.year - b_day.year - ((today.month, today.day) < (b_day.month, b_day.day))
+    utc_n = datetime.datetime.utcnow()
+    return utc_n.year - b_day.year - ((utc_n.month, utc_n.day) < (b_day.month, b_day.day))
 
 
 # Class Mutable
@@ -180,7 +180,6 @@ def add_imports():
         del cit_id  # delete citizen_id list
 
         if checkRelatives(relatives_dict):
-            # db.session.bulk_save_objects(objects)
             db.session.commit()
             return jsonify(data=import_schema.dump(new_import)), 201
         else:
@@ -197,6 +196,7 @@ def update_citizen(import_id, citizen_id):
         rj = request.json
         if len(rj) > 0 and checkFields(rj):
             citizen = Citizen.query.filter_by(import_id=import_id, citizen_id=citizen_id).first()
+            if citizen is None: return {}, 404
             checkS = True
             if checkS and checkKey(rj, 'town'):
                 if noEmpty(rj['town']):
@@ -244,41 +244,39 @@ def update_citizen(import_id, citizen_id):
 
             if checkS and checkKey(rj, 'relatives'):
                 if ((rj['relatives'] == [] or len(rj['relatives']) > 0)
-                        and rj['relatives'] != list(citizen.relatives)
                         and len(set(rj['relatives'])) == len(rj['relatives'])
                         and (citizen.citizen_id not in list(rj['relatives']))
                 ):
-
-                    if rj['relatives'] == '[]':
-                        # remove citizen.citizen_id from relatives
-                        for v in citizen.relatives:
-                            cUpdt = Citizen.query.filter_by(import_id=import_id, citizen_id=v).first()
-                            l = list(cUpdt.relatives)
-                            l.remove(str(citizen.citizen_id))
-                            cUpdt.relatives = l
-                        # change citizen.relatives
-                        citizen.relatives = rj['relatives']
-                    else:
-                        # remove citizen.citizen_id from relatives
-                        for v in citizen.relatives:
-                            cUpdt = Citizen.query.filter_by(import_id=import_id, citizen_id=v).first()
-                            if cUpdt.citizen_id not in rj['relatives']:
+                    if rj['relatives'] != list(citizen.relatives):
+                        if rj['relatives'] == '[]':
+                            # remove citizen.citizen_id from relatives
+                            for v in citizen.relatives:
+                                cUpdt = Citizen.query.filter_by(import_id=import_id, citizen_id=v).first()
                                 l = list(cUpdt.relatives)
-                                l.remove(str(citizen.citizen_id))
+                                l.remove(citizen.citizen_id)
                                 cUpdt.relatives = l
+                            # change citizen.relatives
+                            citizen.relatives = rj['relatives']
+                        else:
+                            # remove citizen.citizen_id from relatives
+                            for v in citizen.relatives:
+                                cUpdt = Citizen.query.filter_by(import_id=import_id, citizen_id=v).first()
+                                if cUpdt.citizen_id not in rj['relatives']:
+                                    l = list(cUpdt.relatives)
+                                    l.remove(citizen.citizen_id)
+                                    cUpdt.relatives = l
 
-                        # add citizen.citizen_id to relatives
-                        for v in rj['relatives']:
-                            cUpdt = Citizen.query.filter_by(import_id=import_id, citizen_id=v).first()
-                            l = list(cUpdt.relatives)
-                            if str(citizen.citizen_id) not in l:
-                                l.append(str(citizen.citizen_id))
-                                cUpdt.relatives = l
+                            # add citizen.citizen_id to relatives
+                            for v in rj['relatives']:
+                                cUpdt = Citizen.query.filter_by(import_id=import_id, citizen_id=v).first()
+                                l = list(cUpdt.relatives)
+                                if citizen.citizen_id not in l:
+                                    l.append(citizen.citizen_id)
+                                    cUpdt.relatives = l
 
-                        # change citizen.relatives
-                        citizen.relatives = rj['relatives']
-                    # else:
-                    #     checkS = False
+                            # change citizen.relatives
+                            citizen.relatives = rj['relatives']
+
                 else:
                     checkS = False
 
@@ -308,7 +306,7 @@ def get_citizen(import_id):
                      gender=row.gender.strip(), relatives=[int(i) for i in row.relatives]) for row in
                 all_citizens]}, 200
 
-        return {}, 400
+        return {}, 404
     except:
         return {}, 400
 
@@ -342,7 +340,7 @@ def get_birthdays(import_id):
                         d_moth[i + 1].append({"citizen_id": k, "presents": v[i]})
             return jsonify(data=d_moth), 200
 
-        return {}, 400
+        return {}, 404
 
     except:
         return {}, 400
@@ -351,23 +349,26 @@ def get_birthdays(import_id):
 # GET - /imports/$import_id/towns/stat/percentile/age
 @app.route('/imports/<import_id>/towns/stat/percentile/age')
 def get_percentile(import_id):
-    sql = "SELECT town, birth_date FROM citizen WHERE import_id = %d;" % int(import_id)
-    result = db.session.execute(sql)
-    rs = defaultdict(list)
-    for row in result:
-        rs[row['town']].append(get_age(row['birth_date']))
-    if len(rs):
-        percentile_town = []  # percentile by town
-        for t, al in rs.items():
-            current_dict = {'town': t}
-            for i in [50, 75, 99]:
-                current_dict[f'p{i}'] = np.percentile(al, i, interpolation='linear')
+    try:
+        sql = "SELECT town, birth_date FROM citizen WHERE import_id = %d;" % int(import_id)
+        result = db.session.execute(sql)
+        rs = defaultdict(list)
+        for row in result:
+            rs[row['town']].append(get_age(row['birth_date']))
+        if len(rs):
+            percentile_town = []  # percentile by town
+            for t, al in rs.items():
+                current_dict = {'town': t}
+                for i in [50, 75, 99]:
+                    current_dict[f'p{i}'] = np.percentile(al, i, interpolation='linear')
 
-            percentile_town.append(current_dict)
+                percentile_town.append(current_dict)
 
-        return jsonify(data=percentile_town), 200
+            return jsonify(data=percentile_town), 200
 
-    return {}, 400
+        return {}, 404
+    except:
+        return {}, 400
 
 # Run Server
 if __name__ == '__main__':
