@@ -34,11 +34,31 @@ alter user postgres with encrypted password 'postgres';
 create database api;
 \q
 ```
-Запуск сервера
+
+## Запуск сервера
 
 В папке приложения
 
 ```gunicorn -b 0.0.0.0:8080 app:app```
+
+В папке ```/etc/systemd/system``` надо создать ```gunicorn.service``` со следующим содержанием
+```
+[Service]
+User=entrant
+WorkingDirectory=/var/yandex/flask
+ExecStart=/home/entrant/.local/share/virtualenvs/flask-vGj3Vvuz/bin/gunicorn --bind 0.0.0.0:8080 app:app
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+Дальше открываем консоль и заставляем всё это работать
+```
+sudo systemctl enable gunicorn.service
+sudo systemctl start gunicorn.service
+```
  
 ## Методы API
 
