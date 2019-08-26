@@ -1,3 +1,6 @@
 # Yandex Backend Test
-Тестовое задание в школу бекенд-разработку Яндекса.
+REST API с использованием Flask, SQLAlchemy и Marshmallow
+
+# Технологии
+
  
