@@ -132,9 +132,6 @@ class Citizen(db.Model):
     gender = db.Column(db.VARCHAR(6), nullable=False)
     relatives = db.Column(MutableList.as_mutable(db.ARRAY(db.Integer)))
 
-    def __repr__(self):
-        return '<Citizen %r>' % self.name
-
 
 # Citizen Schema
 class CitizenSchema(ma.Schema):
