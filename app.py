@@ -1,11 +1,11 @@
-import datetime, json, re, numpy as np
+import datetime, json, re, numpy as np, simplejson
 from collections import defaultdict
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.mutable import Mutable
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
-
+from decimal import *
 # Init app
 app = Flask(__name__)
 
@@ -358,9 +358,7 @@ def get_percentile(import_id):
                 current_dict = {'town': t}
                 for i in [50, 75, 99]:
                     current_dict[f'p{i}'] = np.percentile(al, i, interpolation='linear')
-
                 percentile_town.append(current_dict)
-
             return jsonify(data=percentile_town), 200
 
         return {}, 404
