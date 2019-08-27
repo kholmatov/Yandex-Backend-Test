@@ -10,7 +10,7 @@ from decimal import *
 app = Flask(__name__)
 
 # Database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://yandex:ap05092009s@localhost/api'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://yandex:apidbpassword@localhost/api'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Init db
