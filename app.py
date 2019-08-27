@@ -12,6 +12,7 @@ app = Flask(__name__)
 # Database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://yandex:apidbpassword@localhost/api'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 
 # Init db
 db = SQLAlchemy(app)
@@ -372,7 +373,7 @@ def get_percentile(import_id):
             for t, al in rs.items():
                 current_dict = {'town': t}
                 for i in [50, 75, 99]:
-                    current_dict[f'p{i}'] = np.percentile(al, i, interpolation='linear')
+                    current_dict[f'p{i}'] = float("%0.2f" % (np.percentile(al, i, interpolation='linear')))
                 percentile_town.append(current_dict)
             return jsonify(data=percentile_town), 200
 
