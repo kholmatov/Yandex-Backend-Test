@@ -48,9 +48,17 @@ pip install flask flask_sqlalchemy psycopg2-binary gunicorn marshmallow marshmal
 Далее необходимо установить пароль для postgres и создать БД для тестов
 ```
 sudo -u postgres psql
-alter user postgres with encrypted password 'postgres';
 create database api;
+create user yandex with encrypted password 'apidbpassword';
+grant all privileges on database api to yandex;
 \q
+```
+После запускаем python и создаем своих таблиц в базе данных PostgreSQL
+```
+$ python
+>> from app import db
+>> db.create_all()
+>> exit()
 ```
 
 ## Запуск сервера
