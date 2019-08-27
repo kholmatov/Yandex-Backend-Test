@@ -31,10 +31,19 @@ Werkzeug==0.15.5
 Установка и развертывание
 
 ```
-sudo apt-get install python3-pip postgresql postgresql-contrib libpq-dev redis-server
-pip3 install flask flask_sqlalchemy psycopg2-binary gunicorn marshmallow marshmallow-sqlalchemy numpy
-git clone https://github.com/kholmatov/Yandex-Backend-Test.git
+sudo apt-get install python3 python3-pip postgresql postgresql-contrib libpq-dev redis-server
+cd /var && git clone https://github.com/kholmatov/Yandex-Backend-Test.git
+cd Yandex-Backend-Test
 ```
+Установка зависимых пакетов:  
+```
+pip install flask flask_sqlalchemy psycopg2-binary gunicorn marshmallow marshmallow-sqlalchemy numpy
+```
+
+или
+
+```pip install -r requirements.txt``` 
+
 Далее необходимо установить пароль для postgres и создать БД для тестов
 ```
 sudo -u postgres psql
@@ -53,8 +62,8 @@ create database api;
 ```
 [Service]
 User=entrant
-WorkingDirectory=/var/yandex/flask
-ExecStart=/home/entrant/.local/share/virtualenvs/flask-vGj3Vvuz/bin/gunicorn --bind 0.0.0.0:8080 app:app
+WorkingDirectory=/var/Yandex-Backend-Test
+ExecStart=/usr/bin/gunicorn --bind 0.0.0.0:8080 app:app
 ExecReload=/bin/kill -s HUP $MAINPID
 ExecStop=/bin/kill -s TERM $MAINPID
 PrivateTmp=true
