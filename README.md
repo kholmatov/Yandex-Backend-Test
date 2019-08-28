@@ -45,7 +45,7 @@ pip install flask flask_sqlalchemy psycopg2-binary gunicorn marshmallow marshmal
 
 ```pip install -r requirements.txt``` 
 
-Далее необходимо установить пароль для postgres и создать БД для тестов
+Далее необходимо создать БД ```api``` и нового пользователя ```yandex``` с паролем ```apidbpassword``` 
 ```
 sudo -u postgres psql
 create database api;
